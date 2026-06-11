@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Fahimuzzaman Fahim — Photo Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ════════════════════════════════════════════════════════════
+     CONFIGURATION — the only thing you may ever need to change
+     ════════════════════════════════════════════════════════════ */
+  /* (see CONFIG in the script tag at the bottom of this file)   */
+
+  :root {
+    --teal: #1F4E5F;
+    --gold: #B08D3E;
+    --gold-light: #e6d9bb;
+    --ivory: #FBF8F1;
+    --gray: #5A6B72;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Lora', serif;
+    background:
+      radial-gradient(circle at 0% 0%, rgba(176,141,62,0.08) 0, transparent 30%),
+      radial-gradient(circle at 100% 100%, rgba(31,78,95,0.08) 0, transparent 30%),
+      var(--ivory);
+    color: var(--teal);
+    min-height: 100vh;
+  }
+  .frame {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 36px 28px 48px;
+    border: 2px solid var(--gold);
+    outline: 1px solid var(--teal);
+    outline-offset: -8px;
+    background: rgba(255,255,255,0.35);
+  }
+  header { text-align: center; margin-bottom: 8px; }
+  .bismillah {
+    color: var(--gold); font-style: italic; font-size: 0.85rem;
+    letter-spacing: 2.5px; margin-bottom: 14px;
+  }
+  h1 { font-size: 2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .subtitle {
+    color: var(--gold); font-weight: 600; font-size: 0.78rem;
+    letter-spacing: 5px; text-transform: uppercase; margin-top: 6px;
+  }
+  .divider { display: flex; align-items: center; margin: 22px auto 30px; max-width: 460px; }
+  .divider .line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); }
+  .divider .diamond { width: 8px; height: 8px; background: var(--teal); transform: rotate(45deg); margin: 0 10px; }
+
+  .status { text-align: center; color: var(--gray); font-style: italic; padding: 40px 16px; line-height: 1.7; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 22px;
+  }
+  .card {
+    background: #fff; padding: 8px;
+    border: 1.4px solid var(--gold);
+    outline: 1px solid var(--gold-light);
+    outline-offset: 3px;
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(31,78,95,0.18); }
+  .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+
+  footer { text-align: center; margin-top: 40px; color: var(--gray); font-size: 0.85rem; font-style: italic; }
+  footer .orn { color: var(--gold); letter-spacing: 8px; margin-bottom: 10px; font-style: normal; }
+
+  /* lightbox */
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(20,32,38,0.93);
+    display: none; align-items: center; justify-content: center; z-index: 50;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 90vw; max-height: 86vh;
+    border: 3px solid var(--gold); background: #fff; padding: 6px;
+  }
+  .lb-btn {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: var(--gold-light);
+    font-size: 3rem; cursor: pointer; padding: 18px; font-family: 'Lora', serif;
+    user-select: none;
+  }
+  .lb-btn:hover { color: #fff; }
+  #lbPrev { left: 8px; } #lbNext { right: 8px; }
+  #lbClose { position: fixed; top: 12px; right: 22px; font-size: 2.2rem; top: 12px; transform: none; }
+
+  @media (max-width: 600px) {
+    .frame { margin: 10px; padding: 24px 14px 34px; }
+    h1 { font-size: 1.5rem; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="bismillah">Bismillahir Rahmanir Raheem</div>
+    <h1>Fahimuzzaman Fahim</h1>
+    <div class="subtitle">Photo Gallery</div>
+  </header>
+  <div class="divider"><div class="line"></div><div class="diamond"></div><div class="line"></div></div>
+
+  <div id="status" class="status">Loading photos&hellip;</div>
+  <div id="grid" class="grid"></div>
+
+  <footer>
+    <div class="orn">&#9670; &#10086; &#9670;</div>
+    Thank you for visiting &mdash; JazakAllahu Khairan.
+  </footer>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-btn" id="lbClose" aria-label="Close">&times;</button>
+  <button class="lb-btn" id="lbPrev" aria-label="Previous">&lsaquo;</button>
+  <img id="lbImg" src="" alt="Photo">
+  <button class="lb-btn" id="lbNext" aria-label="Next">&rsaquo;</button>
+</div>
+
+<script>
+/* ══════════════ CONFIG — edit these 3 lines only if your names differ ══════════════ */
+const GITHUB_USER = "Fahimuz";   // your GitHub username
+const REPO        = "photos";    // the repository name
+const FOLDER      = "photos";    // the folder inside the repo where you upload images
+/* ═══════════════════════════════════════════════════════════════════════════════════ */
+
+const IMG_EXT = /\.(jpe?g|png|webp|gif)$/i;
+const grid = document.getElementById("grid");
+const status = document.getElementById("status");
+let photos = [], current = 0;
+
+async function loadPhotos() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/${FOLDER}`);
+    if (!res.ok) throw new Error("Folder not found");
+    const files = await res.json();
+    photos = files
+      .filter(f => f.type === "file" && IMG_EXT.test(f.name))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(f => f.download_url);
+
+    if (photos.length === 0) {
+      status.textContent = "No photos have been added yet. Please check back soon.";
+      return;
+    }
+    status.style.display = "none";
+    photos.forEach((url, i) => {
+      const card = document.createElement("div");
+      card.className = "card";
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.src = url;
+      img.alt = "Photo " + (i + 1);
+      card.appendChild(img);
+      card.addEventListener("click", () => openLightbox(i));
+      grid.appendChild(card);
+    });
+  } catch (e) {
+    status.innerHTML = "Photos are being updated &mdash; please check back soon.";
+  }
+}
+
+const lb = document.getElementById("lightbox");
+const lbImg = document.getElementById("lbImg");
+function openLightbox(i) { current = i; lbImg.src = photos[i]; lb.classList.add("open"); }
+function closeLightbox() { lb.classList.remove("open"); lbImg.src = ""; }
+function step(d) { current = (current + d + photos.length) % photos.length; lbImg.src = photos[current]; }
+
+document.getElementById("lbClose").addEventListener("click", closeLightbox);
+document.getElementById("lbPrev").addEventListener("click", e => { e.stopPropagation(); step(-1); });
+document.getElementById("lbNext").addEventListener("click", e => { e.stopPropagation(); step(1); });
+lb.addEventListener("click", e => { if (e.target === lb) closeLightbox(); });
+document.addEventListener("keydown", e => {
+  if (!lb.classList.contains("open")) return;
+  if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+
+loadPhotos();
+</script>
+</body>
+</html>
