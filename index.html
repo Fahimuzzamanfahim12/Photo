@@ -130,7 +130,7 @@
 /* ══════════════ CONFIG — edit these 3 lines only if your names differ ══════════════ */
 const GITHUB_USER = "Fahimuzzamanfahim12";   // your GitHub username
 const REPO        = "Photo";    // the repository name
-const FOLDER      = "photos";    // the folder inside the repo where you upload images
+const FOLDER      = "photos/Fahim photo";    // the folder inside the repo where you upload images
 /* ═══════════════════════════════════════════════════════════════════════════════════ */
 
 const IMG_EXT = /\.(jpe?g|png|webp|gif)$/i;
@@ -140,7 +140,7 @@ let photos = [], current = 0;
 
 async function loadPhotos() {
   try {
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/${FOLDER}`);
+    const res = await fetch(encodeURI(`https://api.github.com/repos/${GITHUB_USER}/${REPO}/contents/${FOLDER}`));
     if (!res.ok) throw new Error("Folder not found");
     const files = await res.json();
     photos = files
